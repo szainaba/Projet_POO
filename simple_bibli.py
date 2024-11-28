@@ -1,3 +1,4 @@
+import os
 class simple_bibli(base_bibli):
     def __init__(self, path):
         self.path = path
