@@ -1,10 +1,3 @@
-import numpy as np
-import os
-import requests
-from datetime import datetime
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-from urllib.request import urlretrieve
 
 class bibli(simple_bibli):
     def __init__(self, path):
