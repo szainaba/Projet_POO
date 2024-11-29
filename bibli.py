@@ -2,6 +2,8 @@ import requests
 from bs4 import BeautifulSoup
 import os
 from simple_bibli import simple_bibli
+from LivreEPUB import *
+from LivrePDF import *
 class bibli(simple_bibli):
     def __init__(self, path):
         super().__init__(path)
