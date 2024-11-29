@@ -1,3 +1,4 @@
+from base_livre import *
 class LivrePDF(base_livre):
     def __init__(self, ressource, titre, auteur, langue, sujet, date_publication):
         super().__init__(ressource)
