@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import os
+from simple_bibli import simple_bibli
 class bibli(simple_bibli):
     def __init__(self, path):
         super().__init__(path)
