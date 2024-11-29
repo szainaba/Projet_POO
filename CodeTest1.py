@@ -1,6 +1,7 @@
 if __name__ == "__main__":
     # Création d'une instance de Bibli
-    bibli = Bibli(r"C:\Users\utilisateur\Biblio")  #### lien pour windows pour recevoir les rapports
+
+    bibli = bibli(r"C:\Users\utilisateur\Biblio")  #### lien pour windows pour recevoir les rapports
 
     # Création d'instances de LivreEPUB et LivrePDF
     livre_epub = LivreEPUB(r"C:\Users\utilisateur\Biblio\pdf.txt", "Titre EPUB", "Auteur EPUB", "Français", "Science Fiction", datetime(2022, 1, 1))
