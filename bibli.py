@@ -6,7 +6,6 @@ class bibli(simple_bibli):
     def __init__(self, path):
         super().__init__(path)
         self.livres = []
-
     def ajouter(self, livre):
         self.livres.append(livre)
 
