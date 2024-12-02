@@ -381,7 +381,7 @@ class bibli(simple_bibli):
             print("Fin de l'alimentation de la bibliothèque")        
 
 
-class BibliScrap(simple_bibli):
+class bibli_scrap(simple_bibli):
     def __init__(self,path):
 
         super().__init__(path)
@@ -447,7 +447,7 @@ class BibliScrap(simple_bibli):
 async def main():
 
     Bibli = bibli("C:/Users/utilisateur/Documents/Biblio")
-    d = BibliScrap("C:/Users/utilisateur/Documents/Biblio")
+    d = bibli_scrap("C:/Users/utilisateur/Documents/Biblio")
     await Bibli.alimenter("https://math.univ-angers.fr/~jaclin/biblio/livres/")
     await d.scrap("https://math.univ-angers.fr/~jaclin/biblio/livres/", profondeur=1, nbmax=100)
     Bibli.rapport_livres("PDF", r"C:\Users\utilisateur\Documents\Biblio\rapport_livres.txt")

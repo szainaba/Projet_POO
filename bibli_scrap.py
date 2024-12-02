@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.request import urlretrieve
 import simple_bibli
-class BibliScrap(simple_bibli):
+class bibli_scrap(simple_bibli):
     def __init__(self,path):
 
         super().__init__(path)
