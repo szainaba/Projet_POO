@@ -5,36 +5,33 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 from urllib.request import urlretrieve
-class BibliScrap:
-    def __init__(self):
+import simple_bibli
+class BibliScrap(simple_bibli):
+    def __init__(self,path):
+
+        super().__init__(path)
         self.downloaded_docs = 0
         self.session = requests.Session()
         self.livres = []
 
-    def scrap(self, url, profondeur, nbmax):
-        # Vérifier les conditions d'arrêt
-        self.nbmax = nbmax
-        if profondeur <= 0 or self.downloaded_docs >= self.nbmax :
-            return
+    async def scrap(self, url, profondeur, nbmax):
+            self.nbmax = nbmax
+            if profondeur <= 0 or self.downloaded_docs >= self.nbmax:
+                return
 
-        try:
-            # Télécharger la page web
-            response = self.session.get(url,verify=False)
-            response.raise_for_status()  # Gérer les erreurs HTTP
+            try:
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(url) as response:
+                        response.raise_for_status()
+                        soup = BeautifulSoup(await response.text(), 'html.parser')
+                        await self.download_documents(soup, url, session)
 
-            soup = BeautifulSoup(response.text, 'html.parser')
+                        links = [urljoin(url, a['href']) for a in soup.find_all('a', href=True) if self.is_html_link(a)]
+                        tasks = [self.scrap(link, profondeur - 1, self.nbmax) for link in links]
+                        await asyncio.gather(*tasks)
+            except (aiohttp.ClientError, aiohttp.InvalidURL, aiohttp.ClientResponseError) as e:
+                print(f"Une erreur s'est produite lors du traitement de {url}: {str(e)}")
 
-            # Télécharger les documents PDF et EPUB
-            self.download_documents(soup,url)
-
-            # Extraire les liens vers d'autres pages web HTML
-            links = [urljoin(url, a['href']) for a in soup.find_all('a', href=True) if self.is_html_link(a)]
-
-            # Réitérer le processus pour chaque lien
-            for link in links:
-                self.scrap(link, profondeur - 1, self.nbmax)
-        except requests.exceptions.RequestException as e:
-            print(f"Une erreur s'est produite lors du traitement de {url}: {str(e)}")
 
     def is_html_link(self, a_tag):
         # Vérifier si le lien pointe vers une page HTML (Content-Type)
@@ -46,17 +43,27 @@ class BibliScrap:
         except requests.exceptions.RequestException:
             return False
 
-    def download_documents(self, soup,url):
-        # Télécharger les documents PDF et EPUB
-        response = self.session.get(url)
-        response.raise_for_status()
-        for link in soup.find_all('a', href=True):
-            if self.downloaded_docs >= self.nbmax:
-                return
+    async def download_documents(self, soup, base_url, session):
+            for link in soup.find_all('a', href=True):
+                if self.downloaded_docs >= self.nbmax:
+                    return
 
-            href = link['href']
-            if href.endswith('.pdf') or href.endswith('.epub'):
-                self.downloaded_docs += 1
-                file_name = f"downloaded_file_{self.downloaded_docs}.{href.split('.')[-1]}"
-                urlretrieve(urljoin(url,href), file_name)
-                print(f"Téléchargement réussi : {file_name}")
+                href = link['href']
+                if href.endswith('.pdf') or href.endswith('.epub'):
+                    self.downloaded_docs += 1
+                    self.livres.append(href)
+                    file_name = href.split('/')[-1]
+                    file_path = os.path.join(self._path, file_name)
+
+                    async with session.get(urljoin(base_url, href)) as response:
+                        if response.status == 200:
+                            with open(file_path, 'wb') as file:
+                                while True:
+                                    chunk = await response.content.read(8192)
+                                    if not chunk:
+                                        break
+                                    file.write(chunk)
+                            print(f"Téléchargement réussi : {file_path}")
+                        else:
+                            print(f"Erreur lors du téléchargement de {href}")
+
